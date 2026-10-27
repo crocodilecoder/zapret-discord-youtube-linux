@@ -18,7 +18,7 @@ jobs:
           sudo apt-get install -y -qq shellcheck python3 curl
 
       - name: Static analysis + unit/mock/e2e test suite
-        run: bash tests/run_all.sh
+        run: sudo -E bash tests/run_all.sh
 
       - name: Verify shipped binaries checksums
         run: bash tools/verify_binaries.sh
