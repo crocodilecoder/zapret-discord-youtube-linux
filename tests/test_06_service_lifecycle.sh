@@ -77,8 +77,9 @@ if [ "$(live_nfqws_count)" -ge 1 ]; then bad "nfqws still running after remove";
 if [ ! -f "$ZAPRET_RUN_DIR/strategy" ]; then ok "strategy state cleared"; else bad "strategy state left"; fi
 echo "== non-systemd daemon mode =="
 (
-	# clean PATH without systemctl and without the systemd marker dir => no systemd
-	unset ZAPRET_SYSTEMD_DIR
+	# на раннерах github systemd реально крутится как pid1, а настоящий
+	# systemctl лежит в /usr/bin - прячем маркер systemd в несуществующий путь
+	export ZAPRET_SYSTEMD_DIR="$MOCK_ROOT/absent-systemd"
 	export PATH="$MOCK_BIN_NONSYS:/usr/bin:/bin"
 	export ZAPRET_NFQWS="$MOCK_ROOT/nfqws-mock"
 	timeout 60 "$SVC" install general.sh > "$MOCK_ROOT/nosys.out" 2>&1

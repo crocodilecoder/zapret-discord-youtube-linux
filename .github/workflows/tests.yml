@@ -15,7 +15,8 @@ jobs:
       - name: Install test dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq shellcheck python3 curl
+          sudo apt-get install -y -qq shellcheck python3 curl \
+            libnetfilter-queue1 libnfnetlink0 libmnl0
 
       - name: Static analysis + unit/mock/e2e test suite
         run: sudo -E bash tests/run_all.sh

@@ -83,7 +83,15 @@ get_nfqws_snapshot() {
 	local snap_file="$1" pid exe args
 	: > "$snap_file"
 	for pid in $(pgrep -x nfqws 2>/dev/null); do
-		exe="$(readlink -f "/proc/$pid/exe" 2>/dev/null)" || continue
+		pid_alive "$pid" || continue
+		# argv[0] из cmdline точнее: /proc/exe резолвит симлинки,
+		# и мы потеряли бы имя процесса (mock лежит за симлинком)
+		argv0="$(tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | head -n1)"
+		if [ -n "$argv0" ] && [ -x "$argv0" ]; then
+			exe="$argv0"
+		else
+			exe="$(readlink -f "/proc/$pid/exe" 2>/dev/null)" || continue
+		fi
 		args="$(tr '\0' '\n' < "/proc/$pid/cmdline" 2>/dev/null | tail -n +2)" || continue
 		{
 			echo "$exe"
@@ -101,8 +109,10 @@ restore_nfqws_snapshot() {
 	while IFS= read -r line || [ -n "$line" ]; do
 		if [ "$line" = "---" ]; then
 			if [ -n "$exe" ] && [ -x "$exe" ]; then
+				# --daemon не дописываем: в cmdline он и так есть, если
+				# процесс работал демоном (а у фейков там свои аргументы)
 				# shellcheck disable=SC2086
-				( "$exe" $args --daemon >/dev/null 2>&1 & ) || true
+				( "$exe" $args >/dev/null 2>&1 & ) || true
 			fi
 			exe=""; args=""
 		elif [ -z "$exe" ]; then

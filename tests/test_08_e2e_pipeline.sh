@@ -81,8 +81,18 @@ fi
 
 # --- snapshot restore: the pre-started instance should be alive again --------
 sleep 1
+live_nfqws() {
+	local n=0 d c st
+	for d in /proc/[0-9]*; do
+		c="$(cat "$d/comm" 2>/dev/null)" || continue
+		[ "$c" = "nfqws" ] || continue
+		st="$(cut -d' ' -f3 "$d/stat" 2>/dev/null)"
+		[ "$st" != "Z" ] && n=$((n+1))
+	done
+	printf '%s' "$n"
+}
 if [ -n "${PRE_PID:-}" ]; then
-	if pgrep -x nfqws >/dev/null 2>&1; then
+	if [ "$(live_nfqws)" -ge 1 ]; then
 		ok "pre-existing nfqws instance restored after tests"
 	else
 		bad "snapshot restore did not bring nfqws back"
