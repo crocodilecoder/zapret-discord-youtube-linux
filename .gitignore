@@ -1,0 +1,18 @@
+# user-editable lists (created on first run, like in the Windows version)
+/lists/ipset-exclude-user.txt
+/lists/list-general-user.txt
+/lists/list-exclude-user.txt
+
+# runtime/test artifacts
+/utils/test results/
+/utils/game_filter.enabled
+/ipset_switched.flag
+/lists/ipset-all.test-backup.txt
+
+# python cache
+__pycache__/
+*.pyc
+
+# editors
+.vscode/
+.idea/

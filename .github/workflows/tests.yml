@@ -1,0 +1,35 @@
+name: tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck python3 curl
+
+      - name: Static analysis + unit/mock/e2e test suite
+        run: bash tests/run_all.sh
+
+      - name: Verify shipped binaries checksums
+        run: bash tools/verify_binaries.sh
+
+      - name: Rebuild nfqws from upstream source (reproducibility)
+        run: |
+          sudo apt-get install -y -qq gcc make libc6-dev libnetfilter-queue-dev \
+            libmnl-dev zlib1g-dev libcap-dev git
+          mv bin/nfqws bin/nfqws.shipped
+          ZAPRET_BUILD_DIR=/tmp/zapret-ci FORCE_REBUILD=1 sudo -E ./install.sh
+          ./bin/nfqws --version | head -n1
+          # note: the shipped binary is built on Debian 12 (glibc 2.36) and may
+          # not run on this runner's glibc - integrity is covered by the
+          # checksum step above; users on older glibc rebuild via install.sh.

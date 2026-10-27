@@ -1,0 +1,2 @@
+# shellcheck config for the Linux port scripts
+disable=SC1091,SC2034,SC2164

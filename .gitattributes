@@ -1,0 +1,17 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+
+# upstream data files: keep byte-identical with Flowseal/zapret-discord-youtube
+/lists/** -text
+/.service/** -text
+/utils/targets.txt -text
+/utils/check_updates.enabled -text
+/tools/win_bats/** -text
+LICENSE.txt -text
+
+# binaries
+bin/* -text
+BINARIES.sha256 text eol=lf
